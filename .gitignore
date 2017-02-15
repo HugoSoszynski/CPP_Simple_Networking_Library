@@ -191,4 +191,8 @@ Session.vim
 # auto-generated tag files
 tags
 
+### Clion ###
+# CMake-debug
+cmake*
+
 # End of https://www.gitignore.io/api/c,c++,jetbrains,emacs,vim
