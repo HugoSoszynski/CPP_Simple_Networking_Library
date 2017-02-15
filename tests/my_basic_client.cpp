@@ -34,7 +34,7 @@ int main()
   memset(&dest, 0, sizeof(struct sockaddr_in));
 
   dest.sin_family = AF_INET;
-  dest.sin_addr.s_addr = inet_addr("10.26.111.64");
+  dest.sin_addr.s_addr = inet_addr("10.26.111.63");
   dest.sin_port = htons(PORTNUM);
 
   if (
