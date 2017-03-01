@@ -4,9 +4,12 @@ project(CPP_Simple_Networking_Library)
 set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES
-    sources/Socket.cpp
     tests/my_basic_client.cpp
     tests/my_basic_server.cpp
+    sources/Socket.cpp
+    sources/SocketException.cpp
     )
+
+include_directories(includes)
 
 add_executable(CPP_Simple_Networking_Library ${SOURCE_FILES})

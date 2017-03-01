@@ -11,16 +11,18 @@
 #ifndef SOCKET_HPP
 # define SOCKET_HPP
 
-#include <stdlib.h>
-#include <string.h>
-#include <string>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/types.h>
+# include <stdlib.h>
+# include <string.h>
+# include <string>
+# include <unistd.h>
+# include <arpa/inet.h>
+# include <netinet/in.h>
+# include <sys/socket.h>
+# include <sys/types.h>
+# include "SocketException.hpp"
 
-class Socket {
+class Socket
+{
 protected:
   int			_domain;
   int			_type;
@@ -30,12 +32,17 @@ protected:
 
 public:
   Socket(int domain, int type, int protocol);
-  Socket(Socket const& other);
   ~Socket();
 
-  Socket& operator=(Socket const& other);
-  void SocketPair(sa_family_t domain, uint16_t portNum, std::string addr);
-  void CreateConnection();
+public:
+  void Pair(sa_family_t domain, uint16_t portNum, std::string addr);
+  void Connect();
+
+private:
+  Socket(Socket const& other) = delete;
+  Socket(Socket const&& other) = delete;
+  Socket& operator=(Socket const& other) = delete;
+  Socket& operator=(Socket const&& other) = delete;
 };
 
 #endif /* !SOCKET_HPP */
