@@ -37,13 +37,14 @@ namespace socket
     struct sockaddr *_address; //!< The local socket's sockaddr structure.
     struct sockaddr *_client; //!< The client socket's sockaddr structure.
     socklen_t _addressLen; //!< The local sockaddr length.
+    socklen_t _defaultClientLen; //!< The original client's sockaddr length.
     socklen_t _clientLen; //!< The client's sockaddr length.
 
   public:
     /// \brief Constructor for Socket objects.
     /// \param domain Specifies a communication domain, this selects the protocol family which will be used for communication.
-    ///               These families are defined in <sys/socket.h>.
-    /// \param type The socket has the indicated type, which specifies the communication semantics. Could be AF_INET or AF_UNIX.
+    ///               Could be AF_INET or AF_UNIX.
+    /// \param type The socket has the indicated type, which specifies the communication semantics.
     /// \param protocol The protocol specifies a particular protocol to be used with the socket.
     ///                 Normally only a single protocol exists to support a particular socket type within a given protocol family, in which case protocol can be specified as 0.
     Socket(int domain, int type, int protocol);
@@ -84,17 +85,26 @@ namespace socket
     /// \return Upon successful completion, the method shall return 0; otherwise, −1 shall be returned.
     int Accept();
 
-    /// \brief Initiate transmission of a message from the socket to its peer.
+    /// \brief Initiate transmission of a message from the socket to its peer (used by clients).
     /// \param buf Point to the buffer containing the message to send.
     /// \param length The length of the message in bytes.
+    /// \param flags Specifies the type of message transmission.
     /// \return Upon successful completion, return the number of bytes sent, otherwise return -1.
-    ssize_t Send(void const* buf, size_t length);
+    ssize_t Send(void const* buf, size_t length, int flags);
+
+    /// \brief Initiate transmission of a message from the socket to its peer (used by server).
+    /// \param buf Point to the buffer containing the message to send.
+    /// \param length The length of the message in bytes.
+    /// \param flags Specifies the type of message transmission.
+    /// \return Upon successful completion, return the number of bytes sent, otherwise return -1.
+    ssize_t SendClient(void const* buf, size_t length, int flags);
 
     /// \brief
     /// \param buf Points to the buffer where the message should be stored.
     /// \param maxLen The length of the buffer pointed by the buf argument.
+    /// \param flags Specifies the type of message transmission.
     /// \return The length of the received message of successful completion, otherwise return -1.
-    ssize_t Recv(void *buf, size_t maxLen);
+    ssize_t Recv(void *buf, size_t maxLen, int flags);
 
   private:
     Socket(Socket const &other) = delete;
