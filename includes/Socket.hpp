@@ -22,8 +22,8 @@
 # include <sys/un.h>
 # include "SocketException.hpp"
 
-/// \namespace socket
-namespace socket
+/// \namespace mysocket
+namespace mysocket
 {
   /// \class Socket
   class Socket

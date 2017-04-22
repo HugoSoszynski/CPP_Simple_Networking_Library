@@ -11,7 +11,7 @@
 #include <errno.h>
 #include "Socket.hpp"
 
-namespace socket
+namespace mysocket
 {
 
   Socket::Socket(int domain, int type, int protocol)
@@ -111,7 +111,7 @@ namespace socket
 
   int Socket::Listen(int backlog)
   {
-    return listen(this->_socket, 1);
+    return listen(this->_socket, backlog);
   }
 
   int Socket::Accept()

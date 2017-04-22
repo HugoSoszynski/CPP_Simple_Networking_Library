@@ -14,19 +14,26 @@
 # include <exception>
 # include <string>
 
-class SocketException: public std::exception
+namespace mysocket
 {
-protected:
-  std::string _message;
 
-public:
-  SocketException(std::string const& message);
-  SocketException(SocketException const& other);
-  virtual ~SocketException() throw();
-  SocketException& operator=(SocketException const& other);
+  class SocketException : public std::exception
+  {
+  protected:
+    std::string _message;
 
-public:
-  virtual const char* what() const throw();
-};
+  public:
+    SocketException(std::string const &message);
+
+    SocketException(SocketException const &other);
+
+    virtual ~SocketException() throw();
+
+    SocketException &operator=(SocketException const &other);
+
+  public:
+    virtual const char *what() const throw();
+  };
+}
 
 #endif // !SOCKETEXCEPTION_HPP

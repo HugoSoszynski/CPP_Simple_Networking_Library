@@ -11,24 +11,28 @@
 #include <string>
 #include "SocketException.hpp"
 
-SocketException::SocketException(std::string const &message):
-  _message(message)
-{}
-
-SocketException::SocketException(SocketException const &other):
-  _message(other._message)
-{}
-
-SocketException::~SocketException()
-{}
-
-SocketException& SocketException::operator=(SocketException const &other)
+namespace mysocket
 {
-  this->_message = other._message;
-  return *this;
-}
 
-const char* SocketException::what() const
-{
-  return this->_message.c_str();
+  SocketException::SocketException(std::string const &message) :
+    _message(message)
+  {}
+
+  SocketException::SocketException(SocketException const &other) :
+    _message(other._message)
+  {}
+
+  SocketException::~SocketException()
+  {}
+
+  SocketException &SocketException::operator=(SocketException const &other)
+  {
+    this->_message = other._message;
+    return *this;
+  }
+
+  const char *SocketException::what() const throw()
+  {
+    return this->_message.c_str();
+  }
 }
