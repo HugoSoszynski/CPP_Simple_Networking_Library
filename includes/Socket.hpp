@@ -50,7 +50,7 @@ namespace socket
     Socket(int domain, int type, int protocol);
 
     /// \brief Destructor for Socket objects. Close the socket.
-    ~Socket();
+    virtual ~Socket();
 
   public:
     /// \brief Set the content of the structure used for AF_INET socket.
