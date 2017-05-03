@@ -144,4 +144,9 @@ namespace mysocket
   {
     return recv(this->_socket, buf, maxLen, flags);
   }
+
+  ssize_t Socket::RecvClient(void *buf, size_t maxLen, int flags)
+  {
+    return recv(this->_clientSocket, buf, maxLen, flags);
+  }
 }

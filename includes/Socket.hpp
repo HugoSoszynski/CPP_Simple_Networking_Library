@@ -106,6 +106,13 @@ namespace mysocket
     /// \return The length of the received message of successful completion, otherwise return -1.
     ssize_t Recv(void *buf, size_t maxLen, int flags);
 
+    /// \brief
+    /// \param buf Points to the buffer where the message should be stored.
+    /// \param maxLen The length of the buffer pointed by the buf argument.
+    /// \param flags Specifies the type of message transmission.
+    /// \return The length of the received message of successful completion, otherwise return -1.
+    ssize_t RecvClient(void *buf, size_t maxLen, int flags);
+
   private:
     Socket(Socket const &other) = delete;
 
@@ -117,4 +124,4 @@ namespace mysocket
   };
 }
 
-#endif /* !SOCKET_HPP */
+#endif // !SOCKET_HPP
