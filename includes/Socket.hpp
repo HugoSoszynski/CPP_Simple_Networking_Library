@@ -14,13 +14,37 @@
 # include <cstdlib>
 # include <cstring>
 # include <string>
-# include <unistd.h>
-# include <arpa/inet.h>
-# include <netinet/in.h>
-# include <sys/socket.h>
 # include <ctype.h>
-# include <sys/un.h>
 # include "SocketException.hpp"
+
+# ifdef WIN32 /* si vous êtes sous Windows */
+
+#  include <winsock2.h>
+
+# elif defined (linux) /* si vous êtes sous Linux */
+
+#  include <sys/types.h>
+#  include <sys/socket.h>
+#  include <netinet/in.h>
+#  include <sys/un.h>
+#  include <arpa/inet.h>
+#  include <unistd.h>
+#  define INVALID_SOCKET -1
+#  define SOCKET_ERROR -1
+#  define closesocket(s) close(s)
+typedef int SOCKET;
+typedef struct sockaddr_in SOCKADDR_IN;
+typedef struct sockaddr_un SOCKADDR_UN;
+typedef struct sockaddr SOCKADDR;
+typedef struct in_addr IN_ADDR;
+
+# else /* sinon vous êtes sur une plateforme non supportée */
+
+#  error not defined for this platform
+
+# endif
+
+
 
 /// \namespace mysocket
 namespace mysocket
@@ -32,10 +56,10 @@ namespace mysocket
     int _domain; //!< Specifies a communication domain, this selects the protocol family which will be used for communication.
     int _type; //!< The socket type which specifies the communication semantics.
     int _protocol; //!< Protocol to be used with the socket.
-    int _socket; //!< The local socket file descriptor.
-    int _clientSocket; //!< The client socket (not initialized by default).
-    struct sockaddr *_address; //!< The local socket's sockaddr structure.
-    struct sockaddr *_client; //!< The client socket's sockaddr structure.
+    SOCKET _socket; //!< The local socket file descriptor.
+    SOCKET _clientSocket; //!< The client socket (not initialized by default).
+    SOCKADDR *_address; //!< The local socket's sockaddr structure.
+    SOCKADDR *_client; //!< The client socket's sockaddr structure.
     socklen_t _addressLen; //!< The local sockaddr length.
     socklen_t _defaultClientLen; //!< The original client's sockaddr length.
     socklen_t _clientLen; //!< The client's sockaddr length.
@@ -43,7 +67,7 @@ namespace mysocket
   public:
     /// \brief Constructor for Socket objects.
     /// \param domain Specifies a communication domain, this selects the protocol family which will be used for communication.
-    ///               Could be AF_INET or AF_UNIX.
+    ///               Could be AF_INET or AF_UNIX (only on linux systems).
     /// \param type The socket has the indicated type, which specifies the communication semantics.
     /// \param protocol The protocol specifies a particular protocol to be used with the socket.
     ///                 Normally only a single protocol exists to support a particular socket type within a given protocol family, in which case protocol can be specified as 0.
@@ -57,12 +81,13 @@ namespace mysocket
     ///        NEVER use this method if you use a AF_UNIX socket.
     /// \param sinPort Port to connect to.
     /// \param sinAddr IPv4 address in binary form.
-    void setInAddress(unsigned short sinPort, struct in_addr sinAddr);
+    void setAddress(unsigned short sinPort, IN_ADDR sinAddr);
 
     /// \brief Set the content of the structure used for AF_UNIX socket.
     ///        NEVER use this method if you use a AF_INET socket.
+    ///        DOES NOTHING ON WINDOWS SYSTEMS.
     /// \param pathname The pathname for the socket (max 108 char, else will be truncated).
-    void setUnAddress(std::string const& pathname);
+    void setAddress(std::string const& pathname);
 
     /// \brief Close the client socket. If the socket was not open, undefined behaviour may occur.
     void closeClientSocket();
@@ -113,7 +138,7 @@ namespace mysocket
     /// \return The length of the received message of successful completion, otherwise return -1.
     ssize_t RecvClient(void *buf, size_t maxLen, int flags);
 
-  private:
+  public:
     Socket(Socket const &other) = delete;
 
     Socket(Socket const &&other) = delete;

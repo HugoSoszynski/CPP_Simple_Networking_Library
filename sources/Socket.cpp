@@ -20,25 +20,27 @@ namespace mysocket
       _addressLen(0), _defaultClientLen(0), _clientLen(0)
   {
     this->_socket = socket(domain, type, protocol);
-    if (this->_socket == -1)
+    if (this->_socket == INVALID_SOCKET)
       throw SocketException(strerror(errno));
     if (domain == AF_INET)
     {
-      this->_addressLen = sizeof(sockaddr_in);
-      this->_defaultClientLen = sizeof(sockaddr_in);
-      this->_address = reinterpret_cast<sockaddr *>(new sockaddr_in);
-      this->_client = reinterpret_cast<sockaddr *>(new sockaddr_in);
+      this->_addressLen = sizeof(SOCKADDR_IN);
+      this->_defaultClientLen = sizeof(SOCKADDR_IN);
+      this->_address = reinterpret_cast<SOCKADDR *>(new SOCKADDR_IN);
+      this->_client = reinterpret_cast<SOCKADDR *>(new SOCKADDR_IN);
     }
+#if defined (linux)
     else if (domain == AF_UNIX)
     {
-      this->_addressLen = sizeof(sockaddr_un);
-      this->_defaultClientLen = sizeof(sockaddr_un);
-      this->_address = reinterpret_cast<sockaddr *>(new sockaddr_un);
-      this->_client = reinterpret_cast<sockaddr *>(new sockaddr_un);
+      this->_addressLen = sizeof(SOCKADDR_UN);
+      this->_defaultClientLen = sizeof(SOCKADDR_UN);
+      this->_address = reinterpret_cast<SOCKADDR *>(new SOCKADDR_UN);
+      this->_client = reinterpret_cast<SOCKADDR *>(new SOCKADDR_UN);
     }
+#endif
     else
     {
-      close(this->_socket);
+      closesocket(this->_socket);
       throw SocketException("ERROR: Socket type not implemented");
     }
     std::memset(this->_address, 0, this->_addressLen);
@@ -50,43 +52,47 @@ namespace mysocket
   {
     if (this->_domain == AF_INET)
     {
-      delete reinterpret_cast<sockaddr_in *>(this->_address);
-      delete reinterpret_cast<sockaddr_in *>(this->_client);
+      delete reinterpret_cast<SOCKADDR_IN *>(this->_address);
+      delete reinterpret_cast<SOCKADDR_IN *>(this->_client);
     }
+#if defined (linux)
     else if (this->_domain == AF_UNIX)
     {
-      delete reinterpret_cast<sockaddr_un *>(this->_address);
-      delete reinterpret_cast<sockaddr_un *>(this->_client);
+      delete reinterpret_cast<SOCKADDR_UN *>(this->_address);
+      delete reinterpret_cast<SOCKADDR_UN *>(this->_client);
     }
-    close(this->_socket);
+#endif
+    closesocket(this->_socket);
   }
 
-  void Socket::setInAddress(unsigned short sinPort, struct in_addr sinAddr)
+  void Socket::setAddress(unsigned short sinPort, struct in_addr sinAddr)
   {
-    sockaddr_in *addr;
+    SOCKADDR_IN *addr;
 
-    addr = reinterpret_cast<sockaddr_in *>(this->_address);
+    addr = reinterpret_cast<SOCKADDR_IN *>(this->_address);
     addr->sin_family = AF_INET;
     addr->sin_port = sinPort;
     addr->sin_addr = sinAddr;
   }
 
-  void Socket::setUnAddress(std::string const &pathname)
+  void Socket::setAddress(std::string const &pathname)
   {
-    sockaddr_un *addr;
+#if defined (linux)
+    SOCKADDR_UN *addr;
 
-    addr = reinterpret_cast<sockaddr_un *>(this->_address);
+    addr = reinterpret_cast<SOCKADDR_UN *>(this->_address);
     addr->sun_family = AF_UNIX;
     std::strncpy(
       addr->sun_path,
       pathname.c_str(),
       108 // addr->sun_path[108] (RTFM)
     );
+#endif
   }
 
   void Socket::closeClientSocket()
   {
-    close(this->_clientSocket);
+    closesocket(this->_clientSocket);
     std::memset(this->_client, 0, this->_defaultClientLen);
     this->_clientLen = this->_defaultClientLen;
   }
@@ -121,11 +127,11 @@ namespace mysocket
       this->_client,
       &this->_clientLen
     );
-    if (this->_clientSocket == -1)
+    if (this->_clientSocket == INVALID_SOCKET)
     {
       std::memset(this->_client, 0, this->_defaultClientLen);
       this->_clientLen = this->_defaultClientLen;
-      return -1;
+      return INVALID_SOCKET;
     }
     return 0;
   }
