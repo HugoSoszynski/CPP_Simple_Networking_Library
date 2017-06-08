@@ -136,22 +136,26 @@ namespace mysocket
     return 0;
   }
 
-  ssize_t Socket::Send(void const *buf, size_t length, int flags)
+  template <typename T>
+  ssize_t Socket::Send(T const* buf, size_t length, int flags)
   {
     return send(this->_socket, buf, length, flags);
   }
 
-  ssize_t Socket::SendClient(void const *buf, size_t length, int flags)
+  template <typename T>
+  ssize_t Socket::SendClient(T const* buf, size_t length, int flags)
   {
     return send(this->_clientSocket, buf, length, flags);
   }
 
-  ssize_t Socket::Recv(void *buf, size_t maxLen, int flags)
+  template <typename T>
+  ssize_t Socket::Recv(T* buf, size_t maxLen, int flags)
   {
     return recv(this->_socket, buf, maxLen, flags);
   }
 
-  ssize_t Socket::RecvClient(void *buf, size_t maxLen, int flags)
+  template <typename T>
+  ssize_t Socket::RecvClient(T* buf, size_t maxLen, int flags)
   {
     return recv(this->_clientSocket, buf, maxLen, flags);
   }
