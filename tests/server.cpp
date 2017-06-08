@@ -46,11 +46,12 @@ int main()
     return 2;
   if (sock.Accept() == SOCKET_ERROR)
     return 3;
-  if (sock.RecvClient<char>(buf, 4, 0) == SOCKET_ERROR)
+  if (sock.RecvClient(buf, 4, 0) == SOCKET_ERROR)
   {
     sock.closeClientSocket();
     return 4;
   }
+  printf("%s\n", buf);
   if (sock.SendClient("PONG", 4, 0) == SOCKET_ERROR)
   {
     sock.closeClientSocket();

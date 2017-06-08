@@ -41,9 +41,9 @@ int main()
   sock.setAddress(htons(42000), inet_addr("127.0.0.1"));
   if (sock.Connect() == SOCKET_ERROR)
     return 1;
-  if (sock.Send<char>("PING", 4) == SOCKET_ERROR)
+  if (sock.Send("PING", 4) == SOCKET_ERROR)
     return 2;
-  if (sock.Recv<char>(buf, 4, 0) == SOCKET_ERROR)
+  if (sock.Recv(buf, 4, 0) == SOCKET_ERROR)
     return 3;
   printf("%s\n", buf);
 

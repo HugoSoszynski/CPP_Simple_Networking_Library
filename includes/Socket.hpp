@@ -120,32 +120,28 @@ namespace mysocket
     /// \param length The length of the message in bytes.
     /// \param flags Specifies the type of message transmission.
     /// \return Upon successful completion, return the number of bytes sent, otherwise return -1.
-    template <typename T>
-    ssize_t Send(T const* buf, size_t length, int flags = 0);
+    ssize_t Send(void const* buf, size_t length, int flags = 0);
 
     /// \brief Initiate transmission of a message from the socket to its peer (used by server).
     /// \param buf Point to the buffer containing the message to send.
     /// \param length The length of the message in bytes.
     /// \param flags Specifies the type of message transmission.
     /// \return Upon successful completion, return the number of bytes sent, otherwise return -1.
-    template <typename T>
-    ssize_t SendClient(T const* buf, size_t length, int flags = 0);
+    ssize_t SendClient(void const* buf, size_t length, int flags = 0);
 
     /// \brief
     /// \param buf Points to the buffer where the message should be stored.
     /// \param maxLen The length of the buffer pointed by the buf argument.
     /// \param flags Specifies the type of message transmission.
     /// \return The length of the received message of successful completion, otherwise return -1.
-    template <typename T>
-    ssize_t Recv(T* buf, size_t maxLen, int flags = 0);
+    ssize_t Recv(void* buf, size_t maxLen, int flags = 0);
 
     /// \brief
     /// \param buf Points to the buffer where the message should be stored.
     /// \param maxLen The length of the buffer pointed by the buf argument.
     /// \param flags Specifies the type of message transmission.
     /// \return The length of the received message of successful completion, otherwise return -1.
-    template <typename T>
-    ssize_t RecvClient(T* buf, size_t maxLen, int flags = 0);
+    ssize_t RecvClient(void* buf, size_t maxLen, int flags = 0);
 
   public:
     Socket(Socket const &other) = delete;
