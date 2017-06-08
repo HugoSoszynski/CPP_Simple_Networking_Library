@@ -65,7 +65,11 @@ namespace mysocket
     closesocket(this->_socket);
   }
 
+#ifdef WIN32
+  void Socket::setAddress(unsigned short sinPort, unsigned long sinAddr)
+#elif defined (linux)
   void Socket::setAddress(unsigned short sinPort, IN_ADDR sinAddr)
+#endif
   {
     SOCKADDR_IN *addr;
 
@@ -136,22 +140,38 @@ namespace mysocket
     return 0;
   }
 
+#ifdef WIN32
+  ssize_t Socket::Send(char const* buf, size_t length, int flags)
+#elif defined (linux)
   ssize_t Socket::Send(void const* buf, size_t length, int flags)
+#endif
   {
     return send(this->_socket, buf, length, flags);
   }
 
+#ifdef WIN32
+  ssize_t Socket::SendClient(char const* buf, size_t length, int flags)
+#elif defined (linux)
   ssize_t Socket::SendClient(void const* buf, size_t length, int flags)
+#endif
   {
     return send(this->_clientSocket, buf, length, flags);
   }
 
+#ifdef WIN32
+  ssize_t Socket::Recv(char* buf, size_t maxLen, int flags)
+#elif defined (linux)
   ssize_t Socket::Recv(void* buf, size_t maxLen, int flags)
+#endif
   {
     return recv(this->_socket, buf, maxLen, flags);
   }
 
+#ifdef WIN32
+  ssize_t Socket::RecvClient(char* buf, size_t maxLen, int flags)
+#elif defined (linux)
   ssize_t Socket::RecvClient(void* buf, size_t maxLen, int flags)
+#endif
   {
     return recv(this->_clientSocket, buf, maxLen, flags);
   }

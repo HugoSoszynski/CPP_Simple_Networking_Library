@@ -25,6 +25,7 @@
 #  pragma comment (lib, "Ws2_32.lib")
 #  pragma comment (lib, "Mswsock.lib")
 #  pragma comment (lib, "AdvApi32.lib")
+typedef int ssize_t;
 
 # elif defined (linux) /* si vous êtes sous Linux */
 
@@ -86,7 +87,11 @@ namespace mysocket
     ///        NEVER use this method if you use a AF_UNIX socket.
     /// \param sinPort Port to connect to.
     /// \param sinAddr IPv4 address in binary form.
+#ifdef WIN32
+	  void setAddress(unsigned short sinPort, unsigned long sinAddr);
+#elif defined (linux)
     void setAddress(unsigned short sinPort, IN_ADDR sinAddr);
+#endif
 
     /// \brief Set the content of the structure used for AF_UNIX socket.
     ///        NEVER use this method if you use a AF_INET socket.
@@ -120,28 +125,44 @@ namespace mysocket
     /// \param length The length of the message in bytes.
     /// \param flags Specifies the type of message transmission.
     /// \return Upon successful completion, return the number of bytes sent, otherwise return -1.
-    ssize_t Send(void const* buf, size_t length, int flags = 0);
+#ifdef WIN32
+	ssize_t Send(char const* buf, size_t length, int flags = 0);
+#elif defined (linux)
+	ssize_t Send(void const* buf, size_t length, int flags = 0);
+#endif
 
     /// \brief Initiate transmission of a message from the socket to its peer (used by server).
     /// \param buf Point to the buffer containing the message to send.
     /// \param length The length of the message in bytes.
     /// \param flags Specifies the type of message transmission.
     /// \return Upon successful completion, return the number of bytes sent, otherwise return -1.
-    ssize_t SendClient(void const* buf, size_t length, int flags = 0);
+#ifdef WIN32
+	ssize_t SendClient(char const* buf, size_t length, int flags = 0);
+#elif defined (linux)
+	ssize_t SendClient(void const* buf, size_t length, int flags = 0);
+#endif
 
     /// \brief
     /// \param buf Points to the buffer where the message should be stored.
     /// \param maxLen The length of the buffer pointed by the buf argument.
     /// \param flags Specifies the type of message transmission.
     /// \return The length of the received message of successful completion, otherwise return -1.
-    ssize_t Recv(void* buf, size_t maxLen, int flags = 0);
+#ifdef WIN32
+	ssize_t Recv(char* buf, size_t maxLen, int flags = 0);
+#elif defined (linux)
+	ssize_t Recv(void* buf, size_t maxLen, int flags = 0);
+#endif
 
-    /// \brief
+	/// \brief
     /// \param buf Points to the buffer where the message should be stored.
     /// \param maxLen The length of the buffer pointed by the buf argument.
     /// \param flags Specifies the type of message transmission.
     /// \return The length of the received message of successful completion, otherwise return -1.
-    ssize_t RecvClient(void* buf, size_t maxLen, int flags = 0);
+#ifdef WIN32
+	ssize_t RecvClient(char* buf, size_t maxLen, int flags = 0);
+#elif defined (linux)
+	ssize_t RecvClient(void* buf, size_t maxLen, int flags = 0);
+#endif
 
   public:
     Socket(Socket const &other) = delete;
