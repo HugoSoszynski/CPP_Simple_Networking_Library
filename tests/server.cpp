@@ -41,7 +41,10 @@ int main()
   sock.setAddress(htons(42000), htonl(INADDR_ANY));
 
   if (sock.Bind() == SOCKET_ERROR)
+  {
+    perror("bind");
     return 1;
+  }
   if (sock.Listen(1) == SOCKET_ERROR)
     return 2;
   if (sock.Accept() == SOCKET_ERROR)
@@ -58,6 +61,7 @@ int main()
     return 5;
   }
 
+  sleep(1);
   sock.closeClientSocket();
 
   _clear();

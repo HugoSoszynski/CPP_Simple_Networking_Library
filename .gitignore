@@ -196,3 +196,7 @@ tags
 cmake*
 
 # End of https://www.gitignore.io/api/c,c++,jetbrains,emacs,vim
+/client
+Supprimerait client
+Supprimerait server
+/server
