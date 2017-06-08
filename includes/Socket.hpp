@@ -20,6 +20,11 @@
 # ifdef WIN32 /* si vous êtes sous Windows */
 
 #  include <winsock2.h>
+#  include <windows.h>
+#  include <WS2tcpip.h>
+#  pragma comment (lib, "Ws2_32.lib")
+#  pragma comment (lib, "Mswsock.lib")
+#  pragma comment (lib, "AdvApi32.lib")
 
 # elif defined (linux) /* si vous êtes sous Linux */
 
@@ -36,7 +41,7 @@ typedef int SOCKET;
 typedef struct sockaddr_in SOCKADDR_IN;
 typedef struct sockaddr_un SOCKADDR_UN;
 typedef struct sockaddr SOCKADDR;
-typedef struct in_addr IN_ADDR;
+typedef in_addr_t IN_ADDR;
 
 # else /* sinon vous êtes sur une plateforme non supportée */
 

@@ -65,14 +65,14 @@ namespace mysocket
     closesocket(this->_socket);
   }
 
-  void Socket::setAddress(unsigned short sinPort, struct in_addr sinAddr)
+  void Socket::setAddress(unsigned short sinPort, IN_ADDR sinAddr)
   {
     SOCKADDR_IN *addr;
 
     addr = reinterpret_cast<SOCKADDR_IN *>(this->_address);
     addr->sin_family = AF_INET;
     addr->sin_port = sinPort;
-    addr->sin_addr = sinAddr;
+    addr->sin_addr.s_addr = sinAddr;
   }
 
   void Socket::setAddress(std::string const &pathname)

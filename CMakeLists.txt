@@ -8,7 +8,7 @@ set(SOURCE_FILES
     tests/my_basic_server.cpp
     sources/Socket.cpp
     sources/SocketException.cpp
-    )
+    tests/client.cpp tests/server.cpp)
 
 include_directories(includes)
 
