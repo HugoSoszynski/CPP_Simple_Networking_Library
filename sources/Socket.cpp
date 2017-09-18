@@ -9,6 +9,7 @@
 */
 
 #include <errno.h>
+#include <iostream>
 #include "Socket.hpp"
 
 namespace mysocket
@@ -16,8 +17,7 @@ namespace mysocket
 
   Socket::Socket(int domain, int type, int protocol)
     : _domain(domain), _type(type), _protocol(protocol), _socket(-1),
-      _clientSocket(-1), _address(NULL), _client(NULL),
-      _addressLen(0), _defaultClientLen(0), _clientLen(0)
+      _address(nullptr), _addressLen(0)
   {
     this->_socket = socket(domain, type, protocol);
     if (this->_socket == INVALID_SOCKET)
@@ -25,17 +25,13 @@ namespace mysocket
     if (domain == AF_INET)
     {
       this->_addressLen = sizeof(SOCKADDR_IN);
-      this->_defaultClientLen = sizeof(SOCKADDR_IN);
       this->_address = reinterpret_cast<SOCKADDR *>(new SOCKADDR_IN);
-      this->_client = reinterpret_cast<SOCKADDR *>(new SOCKADDR_IN);
     }
 #if defined (linux)
     else if (domain == AF_UNIX)
     {
       this->_addressLen = sizeof(SOCKADDR_UN);
-      this->_defaultClientLen = sizeof(SOCKADDR_UN);
       this->_address = reinterpret_cast<SOCKADDR *>(new SOCKADDR_UN);
-      this->_client = reinterpret_cast<SOCKADDR *>(new SOCKADDR_UN);
     }
 #endif
     else
@@ -44,23 +40,42 @@ namespace mysocket
       throw SocketException("ERROR: Socket type not implemented");
     }
     std::memset(this->_address, 0, this->_addressLen);
-    std::memset(this->_client, 0, this->_defaultClientLen);
-    this->_clientLen = this->_defaultClientLen;
+  }
+
+  Socket::Socket(int domain, int type, int protocol,
+		 SOCKET fd, SOCKADDR_IN const& addr, socklen_t len)
+    :_domain(domain), _type(type), _protocol(protocol), _socket(fd),
+     _address(nullptr), _addressLen(len)
+  {
+    SOCKADDR_IN *new_addr;
+
+    new_addr = new SOCKADDR_IN;
+    new_addr->sin_port = addr.sin_port;
+    new_addr->sin_addr = addr.sin_addr;
+    new_addr->sin_family = addr.sin_family;
+    this->_address = reinterpret_cast<SOCKADDR *>(new_addr);
+  }
+
+  Socket::Socket(int domain, int type, int protocol,
+		 SOCKET fd, SOCKADDR_UN const& addr, socklen_t len)
+    :_domain(domain), _type(type), _protocol(protocol), _socket(fd),
+     _address(nullptr), _addressLen(len)
+  {
+    SOCKADDR_UN *new_addr;
+
+    new_addr = new SOCKADDR_UN;
+    new_addr->sun_family = addr.sun_family;
+    std::memcpy(new_addr->sun_path, addr.sun_path, 108); // 108 RTFM
+    this->_address = reinterpret_cast<SOCKADDR *>(new_addr);
   }
 
   Socket::~Socket()
   {
     if (this->_domain == AF_INET)
-    {
       delete reinterpret_cast<SOCKADDR_IN *>(this->_address);
-      delete reinterpret_cast<SOCKADDR_IN *>(this->_client);
-    }
 #if defined (linux)
     else if (this->_domain == AF_UNIX)
-    {
       delete reinterpret_cast<SOCKADDR_UN *>(this->_address);
-      delete reinterpret_cast<SOCKADDR_UN *>(this->_client);
-    }
 #endif
     closesocket(this->_socket);
   }
@@ -94,12 +109,7 @@ namespace mysocket
 #endif
   }
 
-  void Socket::closeClientSocket()
-  {
-    closesocket(this->_clientSocket);
-    std::memset(this->_client, 0, this->_defaultClientLen);
-    this->_clientLen = this->_defaultClientLen;
-  }
+  SOCKET Socket::getSocketFd() const { return this->_socket; }
 
   int Socket::Connect()
   {
@@ -124,20 +134,33 @@ namespace mysocket
     return listen(this->_socket, backlog);
   }
 
-  int Socket::Accept()
+  Socket* Socket::Accept()
   {
-    this->_clientSocket = accept(
-      this->_socket,
-      this->_client,
-      &this->_clientLen
-    );
-    if (this->_clientSocket == INVALID_SOCKET)
+#if defined (linux)
+    if (this->_domain == AF_UNIX)
     {
-      std::memset(this->_client, 0, this->_defaultClientLen);
-      this->_clientLen = this->_defaultClientLen;
-      return INVALID_SOCKET;
+      SOCKET sock;
+      SOCKADDR_UN addr;
+      socklen_t len = sizeof(addr);
+
+      sock = accept(this->_socket, reinterpret_cast<SOCKADDR*>(&addr), &len);
+      if (sock == -1)
+	return nullptr;
+      Socket *client = new Socket(this->_domain, this->_type, this->_protocol,
+				  sock, addr, len);
+      return client;
     }
-    return 0;
+#endif
+    SOCKET sock;
+    SOCKADDR_IN addr;
+    socklen_t len = sizeof(addr);
+
+    sock = accept(this->_socket, reinterpret_cast<SOCKADDR*>(&addr), &len);
+    if (sock == -1)
+      return nullptr;
+    Socket *client = new Socket(this->_domain, this->_type, this->_protocol,
+				sock, addr, len);
+    return client;
   }
 
 #ifdef WIN32
@@ -150,29 +173,11 @@ namespace mysocket
   }
 
 #ifdef WIN32
-  ssize_t Socket::SendClient(char const* buf, size_t length, int flags)
-#elif defined (linux)
-  ssize_t Socket::SendClient(void const* buf, size_t length, int flags)
-#endif
-  {
-    return send(this->_clientSocket, buf, length, flags);
-  }
-
-#ifdef WIN32
   ssize_t Socket::Recv(char* buf, size_t maxLen, int flags)
 #elif defined (linux)
   ssize_t Socket::Recv(void* buf, size_t maxLen, int flags)
 #endif
   {
     return recv(this->_socket, buf, maxLen, flags);
-  }
-
-#ifdef WIN32
-  ssize_t Socket::RecvClient(char* buf, size_t maxLen, int flags)
-#elif defined (linux)
-  ssize_t Socket::RecvClient(void* buf, size_t maxLen, int flags)
-#endif
-  {
-    return recv(this->_clientSocket, buf, maxLen, flags);
   }
 }
